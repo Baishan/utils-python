@@ -12,7 +12,7 @@ class Heap(object):
 		"""
 		Initialises the heap from an array of numbers
 		"""
-		self.__heap = nums
+		self._data = nums
 		self.__heapify()
 
 
@@ -21,8 +21,8 @@ class Heap(object):
 		Push a number to the heap keeping it intact
 		num: The integer to add to the heap
 		"""
-		self.__heap.append(num)
-		self.__repair_up_to_root(len(self.__heap) -1)
+		self._data.append(num)
+		self.__repair_up_to_root(len(self._data) -1)
 
 
 	def pop(self):
@@ -30,10 +30,10 @@ class Heap(object):
 		Pops the minimum value from the heap, while keeping it intact
 		rtype: The minimum number
 		"""
-		val = self.__heap[0]
-		self.__heap[0] = self.__heap[-1]
-		del self.__heap[-1]
-		
+		val = self._data[0]
+		self._data[0] = self._data[-1]
+		del self._data[-1]
+
 		self.__repair_down(0)
 		return val
 
@@ -42,9 +42,9 @@ class Heap(object):
 		"""
 		Repairs the entire heap
 		"""
-		for i in xrange(len(self.__heap)-1, 0, -1):
-			if self.__heap[i] < self.__heap[(i+1)/2 - 1]:
-				self.__heap[i], self.__heap[(i+1)/2 - 1] = self.__heap[(i+1)/2 - 1], self.__heap[i]
+		for i in xrange(len(self._data)-1, 0, -1):
+			if self._data[i] < self._data[(i+1)/2 - 1]:
+				self._data[i], self._data[(i+1)/2 - 1] = self._data[(i+1)/2 - 1], self._data[i]
 
 
 	def __repair_up_to_root(self, index):
@@ -62,13 +62,13 @@ class Heap(object):
 		index: The index of a child node
 		rtype: The index of the parent, -1 if index points to root
 		"""
-			if(index <=0 or index >= len(self.__heap)): return -1
+		if(index <=0 or index >= len(self._data)): return -1
 
-			parent = (index+1)/2 - 1
-			if self.__heap[index] > self.__heap[parent]:
-				return -1
-			self.__heap[index], self.__heap[parent] = self.__heap[parent], self.__heap[index]
-			return parent
+		parent = (index+1)/2 - 1
+		if self._data[index] > self._data[parent]:
+			return -1
+		self._data[index], self._data[parent] = self._data[parent], self._data[index]
+		return parent
 
 
 	def __repair_down(self, index):
@@ -76,11 +76,24 @@ class Heap(object):
 		Repairs the heap downwards starting a given node
 		index: The index of the node to repair from
 		"""
-		if index >= len(self.__heap):
+		if index >= len(self._data):
 			return
-		rchild = (index +1) * 2
-		self.__repair_up(rchild)
-		self.__repair_up(rchild - 1)
+		mchild = self.__get_min_child_index(index)
+		if self.__repair_up(mchild) == index:
+			self.__repair_down(mchild)
 
-		self.__repair_down(rchild)
-		self.__repair_down(rchild - 1)
+
+	def __get_min_child_index(self, index):
+		"""
+		Returns the index of the child with minimum value
+		index: Index of a parent node
+		rtype: If node has children then index of the child with minimum value, otherwise -1
+		"""
+		rchild = (index +1) * 2
+		if rchild - 1 < len(self._data):
+			if rchild < len(self._data):
+				if self._data[rchild] < self._data[rchild-1]:
+					return rchild
+				
+			return rchild -1
+		return -1
